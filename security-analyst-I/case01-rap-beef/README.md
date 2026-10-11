@@ -125,3 +125,7 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 This case was a perfect example of how the simplest thing, something you say in public or post about in public, can become your biggest security weakness. Dwake didn't get hacked with fancy malware or zero-days. He got hacked because he told a story in a song. The attacker didn't need to break any encryption, they just listened. It really drove home that **security isn't just about technology. It's about what we share, what we use as secrets, and how we verify people.** MFA and good security questions would've stopped this whole thing before it even started.
 
 ## Evidence & Queries
+
+- **Full KQL queries** : [`evidence/kql-queries.txt`](./evidence/kql-queries.txt)
+- **Screenshots:** [`evidence/screenshots/`](./evidence/screenshots/)
+- **IOCs list:** [`IOCs.md`](./IOCs.md)

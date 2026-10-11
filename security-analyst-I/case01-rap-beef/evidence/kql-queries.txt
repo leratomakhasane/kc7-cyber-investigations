@@ -1,0 +1,92 @@
+# KC7 — Case 04: A Rap Beef
+# Date: 2025-02-27
+# Purpose: Trace account takeover via social engineering + phishing campaign
+
+---
+# Query 1 - Find OWL Records CEO
+---
+Employees
+| where role == "CEO"
+/* WHY: Established baseline - who runs the company, starting point for investigation */
+
+---
+# Query 2 - Detect suspicious recon from known attacker IP
+---
+InboundNetworkEvents
+| where timestamp between (datetime("2024-04-10T00:00:00") .. datetime("2024-04-11T00:00:00"))
+| where src_ip has "18.66.52.227"
+/* WHY: Confirmed 19 requests from the hacker IP - they were actively probing the site */
+
+---
+# Query 3 - Find Dwake's email address
+---
+InboundNetworkEvents
+| where timestamp between (datetime("2024-04-10T00:00:00") .. datetime("2024-04-11T00:00:00"))
+| where src_ip has "18.66.52.227"
+| where url has "email" or url has "reset"
+/* WHY: Found the exact email the attacker targeted - dwake_audrey@owl-records.com */
+
+---
+# Query 4 - Confirm password reset using security questions
+---
+InboundNetworkEvents
+| where url has_any("washington", "fluffy")
+| where src_ip has "18.66.52.227"
+/* WHY: Proved they used info from his song lyrics to reset the password - direct link between public info and breach */
+
+---
+# Query 5 - Find phishing domain linked to attacker IP
+---
+PassiveDns
+| where ip == "18.66.52.227"
+/* WHY: Discovered betterlyrics4u.com - the phishing domain used in the follow-up attack */
+
+---
+# Query 6 - Count phishing emails sent
+---
+Email
+| where link has "betterlyrics4u.com"
+| count
+/* WHY: 13 emails total - confirmed a campaign, not just one targeted message */
+
+---
+# Query 7 - Identify phishing sender addresses
+---
+Email
+| where link has "betterlyrics4u.com"
+| distinct sender
+/* WHY: Two different senders - ghostwritersanonymous@protonmail.com, wemakebeatz@gmail.com — attacker using multiple accounts */
+
+---
+# Query 8 - Determine which roles were targeted
+---
+let _targets = Email | where link has "betterlyrics4u.com" | distinct recipient;
+Employees
+| where email_addr in (_targets)
+| distinct role
+/* WHY: Confirmed Rapper + Lead Rapper (Dwake) were the specific targets - not random */
+
+---
+# Query 9 - Check if Dwake clicked the phishing link
+---
+OutboundNetworkEvents
+| where url == "http://betterlyrics4u.com/share/online/published/enter"
+| where src_ip == "10.10.0.5"
+/* WHY: Confirmed he clicked - 2024-04-15T12:03:12Z - credential theft phase confirmed */
+
+---
+# Query 10 - Detect attacker login with stolen credentials
+---
+AuthenticationEvents
+| where username == "dwaudrey"
+| where src_ip == "18.66.52.227"
+/* WHY: Successful login from attacker IP - full account takeover confirmed */
+
+---
+# Query 11 - Identify what data was exfiltrated
+---
+InboundNetworkEvents
+| where timestamp between (datetime("2024-04-12T00:00:00") .. datetime("2024-05-01T00:00:00"))
+| where url has "dwaudrey"
+| where src_ip has "18.66.52.227"
+/* WHY: 10 requests searching his email - culminated in DwakesDirtySecrets.zip - exfiltration complete */
