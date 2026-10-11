@@ -53,7 +53,29 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 
 ## Full Attack Chain & MITRE ATT&CK Mapping
+| Phase                                    | What Happened                                                                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Reconnaissance — Public Info**         | Dwake's song lyrics revealed mother's maiden name ("Washington") and childhood pet ("Fluffy") — publicly available to anyone  |
+| **Initial Access — Password Reset**      | Attacker used those exact answers on the security questions page → successfully reset Dwake's password → full account access  |
+| **Phishing Campaign — Secondary Vector** | Registered `betterlyrics4u.com`, sent convincing "ghostwriter" emails to OWL Records staff — 13 emails total from 2 addresses |
+| **Credential Harvesting**                | Dwake clicked the link → entered his credentials on the fake login page → attacker captured them                              |
+| **Account Takeover**                     | Attacker logged in from IP 18.66.52.227 — successful authentication                                                           |
+| **Data Collection**                      | Searched through Dwake's email — 10 requests looking for sensitive info                                                       |
+| **Exfiltration**                         | Zipped up compromising material → `DwakesDirtySecrets.zip` — stolen and ready for retaliation                                 |
+| **Impact**                               | Embarrassing post on his Instagram; threat against Present from dark web — feud escalated beyond music                        |
 
+
+| Tactic                | Technique ID | Technique Name                                    | How It Appeared Here                                 |
+| --------------------- | ------------ | ------------------------------------------------- | ---------------------------------------------------- |
+| **Reconnaissance**    | T1591.001    | Gather Victim Identity Info                       | Song lyrics revealed mother's maiden name & pet name |
+| **Credential Access** | T1555.003    | Credentials from Password Stores — Password Reset | Security questions answered → password reset         |
+| **Initial Access**    | T1566.001    | Phishing: Spearphishing Link                      | "Ghostwriter" email with fake login page link        |
+| **User Execution**    | T1204.001    | Malicious Link                                    | Dwake clicked → entered credentials                  |
+| **Credential Access** | T1145        | Credential Dumping                                | Captured login credentials on fake page              |
+| **Lateral Movement**  | T1078.003    | Valid Accounts — Local Account                    | Used stolen creds → logged into Dwake's account      |
+| **Collection**        | T1005        | Data from Local System                            | Searched email for sensitive/scandalous info         |
+| **Exfiltration**      | T1041        | Exfiltration Over C2 Channel                      | Zipped data → `DwakesDirtySecrets.zip` — exfiltrated |
+| **Impact**            | T1531        | Account Access Removal / Defacement               | Unauthorised Instagram post — reputational damage    |
 
 ## Indicators Of Compromise
 | Type         | Indicator                                                                      |
