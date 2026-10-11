@@ -11,6 +11,17 @@
 
 ## Table of Contents
 - [Executive Summary](#-executive-summary)
+- [Investigation Overview](#-investigation-overview)
+- [Investigation Timeline & Findings](#-investigation-timeline--findings)
+- [Full Attack Chain & MITRE ATT&CK Mapping](#-full-attack-chain--mitre-attack-mapping)
+- [Idicators Of Compromise](#-indicators-of-compromise)
+- [Root Cause Analysis](#-root-cause-analysis)
+- [Impact Assessment](#-impact-assessment)
+- [Recommendations & Remediations](#-recommendations--remediations)
+- [Conclusion & What I learned](#-conclusion--what-i-learned)
+- [Evidence & KQL Findings](#-evidence--kql-findings)
+
+
 
 **## Executive Summary**
 
