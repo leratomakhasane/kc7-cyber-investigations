@@ -29,3 +29,28 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 ---
 
+## Investigation Overview
+
+
+## Investigation Timeline & Findings
+
+
+## Full Attack Chain & MITRE ATT&CK Mapping
+
+
+## Indicators Of Compromise
+
+
+## Root Cause Analysis
+
+
+## Impact Assessment
+
+
+## Recommendations & Remediations
+
+
+## Conclusion & What I Learned
+
+
+## Evidence & Queries
