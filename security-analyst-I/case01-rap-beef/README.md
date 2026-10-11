@@ -23,7 +23,7 @@
 
 
 
-**## Executive Summary**
+## Executive Summary
 
 Dwake, a rapper signed to OWL Records, got into a public feud with another artist, Present. In his diss track, Dwake accidentally revealed personal information, his mom's maiden name `Washington` and his childhood pet `Fluffy`. Present's label, Dollar Currency Records, hired a hacker who used this information to answer Dwake's security questions, reset his password, and take over his account.The attackers then launched a phishing campaign targeting OWL Records staff, tricked Dwake into clicking a link, stole his credentials, and eventually exfiltrated a zip file named `DwakesDirtySecrets.zip`. This case showed me how social engineering and over sharing personal information can lead to a full account compromise.
 
@@ -54,6 +54,7 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 
 ## Full Attack Chain & MITRE ATT&CK Mapping
+
 | Phase                                    | What Happened                                                                                                                 |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | **Reconnaissance - Public Info**         | Dwake's song lyrics revealed mother's maiden name ("Washington") and childhood pet ("Fluffy") - publicly available to anyone  |
@@ -66,6 +67,7 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 | **Impact**                               | Embarrassing post on his Instagram; threat against Present from dark web - feud escalated beyond music                        |
 
 ### MITRE ATT&CK Mapping
+
 | Tactic                | Technique ID | Technique Name                                    | How It Appeared Here                                 |
 | --------------------- | ------------ | ------------------------------------------------- | ---------------------------------------------------- |
 | **Reconnaissance**    | T1591.001    | Gather Victim Identity Info                       | Song lyrics revealed mother's maiden name & pet name |
@@ -79,6 +81,7 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 | **Impact**            | T1531        | Account Access Removal / Defacement               | Unauthorised Instagram post - reputational damage    |
 
 ## Indicators Of Compromise
+
 | Type         | Indicator                                                                      |
 | ------------ | ------------------------------------------------------------------------------ |
 | IP Address   | `18.66.52.227` - Attacker recon, password reset, login                         |
@@ -91,8 +94,19 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 ## Root Cause Analysis
 
+- **Security questions = weak authentication.** The answers were literally in a song, publicly available. Any information that can be Googled or social engineered is **NOT** security.
+- **No MFA on the account.** Password reset = full access. No second factor to stop it.
+- **Oversharing personal information.** Even "harmless" personal details are security questions. Once public, they're useless as secrets.
+- **Phishing email not detected.** The `ghostwriter` email was marked **CLEAN**, no alert, no filter, no warning.
+- **Domain not flagged.** `betterlyrics4u.com` was suspicious but reached the inbox.
 
 ## Impact Assessment
+
+- **Account fully compromised** - email, likely Instagram too
+- **Reputational damage** - embarrassing post published from his account
+- **Data stolen** - `DwakesDirtySecrets.zip`, material that can be used for blackmail or retaliation
+- **Feud escalated** - physical or digital threat made agaisnt Present which created more problems
+- **Company-wide risk** - 13 staff received the same phishing email, multiple potential entry points
 
 
 ## Recommendations & Remediations
