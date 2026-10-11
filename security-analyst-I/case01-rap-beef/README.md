@@ -51,11 +51,20 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 | 14  | What did they do after login?            | `InboundNetworkEvents \| where url has "dwaudrey" \| where src_ip has "18.66.52.227"`                                                                     | 10 requests — searching through his email                                                                                        | Apr 12–May 1         |
 | 15  | What did they steal?                     | Review file attachments / downloads                                                                                                                       | `DwakesDirtySecrets.zip` — sensitive data exfiltrated                                                                            | Post-compromise      |
 
+
 ## Full Attack Chain & MITRE ATT&CK Mapping
 
 
 ## Indicators Of Compromise
-
+| Type         | Indicator                                                                      |
+| ------------ | ------------------------------------------------------------------------------ |
+| IP Address   | `18.66.52.227` — Attacker recon, password reset, login                         |
+| Domain       | `betterlyrics4u.com` — Phishing domain                                         |
+| Sender Email | `ghostwritersanonymous@protonmail.com` — Phishing sender                       |
+| Sender Email | `wemakebeatz@gmail.com` — Second phishing sender                               |
+| URL          | `http://betterlyrics4u.com/share/online/published/enter` — Phishing login page |
+| File         | `DwakesDirtySecrets.zip` — Exfiltrated data archive                            |
+| Username     | `dwaudrey` — Compromised account                                               |
 
 ## Root Cause Analysis
 
