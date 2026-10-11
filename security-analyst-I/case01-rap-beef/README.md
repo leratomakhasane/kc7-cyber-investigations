@@ -6,6 +6,7 @@
 **Tools:** KQL, Azure Data Explorer
 
 **Difficulty:** Beginner
+
 ---
 
 **1. Executive Summary**
