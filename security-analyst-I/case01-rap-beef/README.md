@@ -1,7 +1,10 @@
 # CASE 01 - A Rap Beef: An Intro to Security Investigations
 **Platform:** KC7 Cyber
+
 **Date:** 27 February 2025
+
 **Tools:** KQL, Azure Data Explorer
+
 **Difficulty:** Beginner
 ---
 
