@@ -111,8 +111,17 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 ## Recommendations & Remediations
 
+| Priority | Action                                                          | Why It Helps                                                            |
+| -------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Critical | Replace security questions with something private & unguessable | Answers should NOT be researchable or public info                       |
+| Critical | Enable MFA on ALL accounts - no exceptions                      | Even with a reset password, they can't get in without the second factor |
+| High     | Block newly registered or suspicious domains                    | `betterlyrics4u.com` should never have reached staff inboxes            |
+| High     | Train on "context phishing" - emails that fit your role         | Ghostwriter offer = convincing to a rapper                              |
+| Medium   | Warn users when links go to external domains                    | Visual warning when clicking non-company links                          |
+| Medium   | Audit password reset logs - alert on question answers           | If someone answers security questions, send an alert immediately        |
 
 ## Conclusion & What I Learned
 
+This case was a perfect example of how the simplest thing, something you say in public or post about in public, can become your biggest security weakness. Dwake didn't get hacked with fancy malware or zero-days. He got hacked because he told a story in a song. The attacker didn't need to break any encryption, they just listened. It really drove home that **security isn't just about technology. It's about what we share, what we use as secrets, and how we verify people.** MFA and good security questions would've stopped this whole thing before it even started.
 
 ## Evidence & Queries
