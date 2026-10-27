@@ -66,4 +66,58 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 
 ## Full Attack Chain & MITRE ATT&CK Mapping
 
+| Phase | What Happened |
+| --- | --- |
+| **Recon & Prep** | Attacker set up infrastructure - `promotionrecruit.com`, `promotionrecruit.org`, `hire-recruit.org`, `hirejob.com` - all themed around "jobs/hiring" to lure victims |
+| **Initial Access - Phishing (Sonia)** | Email from `newspaper_jobs@gmail.com` - "Editorial Offer Letter" - Sonia clicked → downloaded `.docx` with embedded macro |
+| **Execution - PowerShell Drop** | Doc ran → dropped `hacktivist_manifesto.ps1` - established persistence via scheduled task |
+| **Command & Control - Reverse Tunnel** | PowerShell invoked Plink → outbound SSH tunnel to `136.130.190.181` - attacker had full interactive access |
+| **Lateral Movement - Target Ronnie** | Used Sonia's access to gather intel → sent second phish to Ronnie from `valdorias_best_recruiter@gmail.com` |
+| **Second Compromise - Ronnie** | Clicked → same PowerShell → Plink tunnel to `168.57.191.100` - full control of her machine |
+| **Payload Delivery - Fake Article** | Downloaded `fakestory.docx` from `hire-recruit.org` → renamed to `OpEdFinal_to_print.docx` to look legitimate |
+| **Unauthorised Publication** | Emailed the fake file to Clark Kent from Ronnie's account - printer received it as "final draft" → published |
+| **Data Exfiltration** | Zipped Ronnie's Documents, Desktop, and memes into 3 password-protected archives → uploaded all to `hirejob.com` via curl |
+<br>
+
+
+### MITRE ATT&CK Mapping
+
+| Tactic | Technique ID | Technique Name | How It Appeared Here |
+| --- | --- | --- | --- |
+| **Reconnaissance** | T1589.001 | Gather Victim Org Info | Researched roles - Editorial Director, Intern, Printer - crafted targeted emails |
+| **Initial Access** | T1566.001 | Phishing: Spearphishing Attachment | "Job offer" doc - convincing, role-relevant lure |
+| **Execution** | T1204.002 | Malicious File | Opened .docx → macro/PowerShell executed |
+| **Persistence** | T1053.005 | Scheduled Task | schtasks /create - hourly execution - survives reboots |
+| **Command & Control** | T1071.004 | Application Layer Protocol - SSH/Tunnel | Plink → reverse SSH tunnel - encrypted, outbound, looks like normal traffic |
+| **Discovery** | T1087 / T1046 | Account Discovery + Network Scanning | whoami, ipconfig, hostname - 5 discovery commands total |
+| **Lateral Movement** | T1021.001 | Remote Services - SSH/Tunnel | Moved from Sonia → Ronnie via second phish + same toolset |
+| **Persistence** | T1098 | Additional Cloud Service - Email Rules | Used Ronnie's email to send forged document |
+| **Collection** | T1005 | Data from Local System | Collected files from Documents, Desktop, other folders |
+| **Exfiltration** | T1041 | Exfiltration Over C2 Channel | 7zip archives → curl POST to [hirejob.com](https://hirejob.com "autolink") - encrypted + password protected |
+| **Impact** | T1491.001 | Defacement - Internal Site|Fake article published - reputational + political impact |
+<br><br>
+
+
+
+## Indicators of Compromise
+
+| Type | Indicator |
+| --- | --- |
+| Sender Email | `newspaper_jobs@gmail.com` - Phishing (Sonia) |
+| Sender Email | `valdorias_best_recruiter@gmail.com` - Phishing (Ronnie) |
+| Domain | `promotionrecruit.com` - Phishing domain |
+| Domain | `promotionrecruit.org` - Phishing domain |
+| Domain | `hire-recruit.org` - Payload hosting |
+| Domain | `hirejob.com` - Exfiltration server |
+| IP Address | `136.130.190.181` - C2 (Sonia's machine) |
+| IP Address | `168.57.191.100` - C2 (Ronnie's machine) |
+| File Hash | `60b854332e393a6a2f0015383969c3ac705126a6b7829b762057a3994967a61f` - malicious docx |
+| File | `hacktivist_manifesto.ps1` - PowerShell backdoor |
+| File | `fakestory.docx` → renamed to `OpEdFinal_to_print.docx` - fake article |
+| File | `DankMemes.7z`, `MyStolenDataFromDocuments.7z`, `MyStolenDataFromDesktop.7z` - exfil archives |
+| Credentials (attacker) | Username: `$had0w` - Password: `thruthW!llS3tUfree` |
+| URL | `https://hirejob.com/exfil_processor/upload.php` - exfil endpoint |
+<br><br>
+
+
 
