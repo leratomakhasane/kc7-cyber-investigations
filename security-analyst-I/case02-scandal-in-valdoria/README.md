@@ -141,3 +141,42 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 - **Election influence** - timed right before voting - potentially swayed public opinion
 <br><br>
 
+## Recommendations & Remediations
+
+| Priority | Action | Why It Helps |
+| --- | --- | --- |
+| Critical | Block macros from external files - default to disabled | Stops the PowerShell drop - breaks the whole chain at Step 1 |
+| Critical | Restrict outbound SSH or Plink - alert on tunnels | Reverse tunnels are rare for normal business - easy to detect |
+| High | Implement email authentication - SPF/DKIM/DMARC | Prevents sending emails "from" your own domain without permission |
+| High | Alert on scheduled task creation + PowerShell execution | Both are red flags - especially together from Office docs |
+| High | Block/alert on .exe/.ps1 downloads from untrusted domains | Stops the tools from being downloaded in the first place |
+| Medium | Verify "urgent" file requests - especially from senior staff | The "URGENT" subject line is a classic attacker tactic |
+| Medium | Data Loss Prevention - alert on .zip/.7z + upload to unknown domains | 3 archives + curl to random site = clear exfil pattern |
+<br><br>
+
+
+## Conclusion & What I Learned
+
+This case showed me how a single phishing email can snowball into a full breach - from one click → PowerShell → reverse tunnel → second victim → fake news → data theft. What really stood out was how the attackers used legitimate tools - PowerShell, Plink, 7zip, curl - nothing "malicious" on its own, but together they were deadly. That's why defense isn't just about blocking "bad files" - it's about spotting **suspicious behaviour**. And the scariest part? They didn't just steal data - they changed reality. They published a lie that people believed. That's the real power of these attacks - and why we defend.
+<br><br>
+
+
+## Evidence & Queries
+
+### Evidence Screenshots - Complete List 
+| # | File Name | What It Shows | 
+| --- | --- | --- |
+| 01 | `01-initial-phishing-email-to-sonia.png` | The original recruitment-themed phishing email sent to Sonia Gose |
+| 02 | `02-sonia-clicked-phishing-link.png` | Evidence confirming the link was accessed and the victim interacted with the lure |
+| 03 | `03-malicious-document-downloaded.png` | The malicious Word document saved locally — macros enabled |
+| 04 | `04-powershell-script-and-scheduled-task.png` | PowerShell payload execution + scheduled task for persistence |
+| 05 | `05-plink-reverse-tunnel-command.png` | Plink.exe command establishing outbound SSH tunnel to C2 server |
+| 06 | `06-fake-story-file-placed.png` | The falsified article file renamed and staged on the victim's desktop |
+| 07 | `07-fake-article-email-record.png` | Email log showing the fake story sent to the newsroom/printer distribution list |
+| 08 | `08-data-archive-activity.png` | File creation logs showing archive files being built and exfiltrated |
+
+
+- **All screenshots stored in:** [`evidence/screenshots/`](./evidence/screenshots/)
+- **Full KQL queries:** [`evidence/kql-queries.txt`](./evidence/kql-queries.txt)
+- **IOCs list:** [`IOCs.md`](./IOCs.md)
+
