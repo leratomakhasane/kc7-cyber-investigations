@@ -120,4 +120,24 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 <br><br>
 
 
+## Root Cause Analysis
+
+- **No macro blocking.** Word docs ran PowerShell scripts freely - macros should be disabled by default, especially from external sources.
+- **No outbound filtering.** Plink created SSH tunnels to external IPs - this is unusual for a newspaper and should've been blocked or alerted.
+- **Email impersonation not detected.** The email "from Ronnie" went out with no verification or alert.
+- **Same password for everything.** Attacker used the same credentials across both machines - `$had0w / thruthW!llS3tUfree` - no credential uniqueness.
+- **No file upload restrictions.** Employees can download and run arbitrary .exe/.ps1 files - no endpoint protection blocking Plink or PowerShell.
+- **Insider threat detection missing.** Someone sending an email "from you" that you didn't send - should trigger an alert.
+<br><br>
+
+
+## Impact Assessment
+
+- **Fake news published** - reached thousands before corrected - political influence, reputational damage to the paper
+- **2 machines fully compromised** - Senior Editor + Editorial Intern - high-value targets
+- **Data stolen and exfiltrated** - 3 password-protected archives - sensitive docs, internal files, personal data
+- **Persistence established** - scheduled task runs hourly - attacker could come back anytime
+- **Financial + reputational cost** - retractions, loss of trust, potential legal action from the politician
+- **Election influence** - timed right before voting - potentially swayed public opinion
+<br><br>
 
