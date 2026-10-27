@@ -1,0 +1,107 @@
+# KC7 - Case 05: A Scandal in Valdoria
+# Date: 2025-03-08
+# Purpose: Investigate phishing → PowerShell → C2 → fake publication → data exfiltration
+
+---
+# Query 1 - Find the suspicious email to Sonia Gose
+---
+Email
+| where recipient == "sonia_gose@valdoriantimes.news"
+| where sender == "newspaper_jobs@gmail.com"
+/* WHY: Found the initial phishing vector - job offer with malicious doc attachment */
+
+---
+# Query 2 - Check if Sonia clicked the link
+---
+OutboundNetworkEvents
+| where src_ip == "10.10.0.3"
+| where url has "promotionrecruit.com"
+/* WHY: Confirmed click at 2024-01-05 10:23:17Z - execution phase began */
+
+---
+# Query 3 - Locate the downloaded malicious document
+---
+FileCreationEvents
+| where hostname == "UL0M-MACHINE"
+| where filename == "Valdorian_Times_Editorial_Offer_Letter.docx"
+/* WHY: Established file arrival time + SHA256 hash - evidence of initial compromise */
+
+---
+# Query 4 - Detect PowerShell script execution
+---
+FileCreationEvents
+| where hostname == "UL0M-MACHINE"
+| where filename has ".ps1"
+/* WHY: Found hacktivist_manifesto.ps1 - dropped 28 seconds after the doc - confirmed macro/PowerShell chain */
+
+---
+# Query 5 - Identify C2 tunnel via Plink
+---
+ProcessEvents
+| where hostname == "UL0M-MACHINE"
+| where process_commandline has "plink"
+/* WHY: Revealed external IP 136.130.190.181 + credentials - full interactive compromise */
+
+---
+# Query 6 - Count discovery commands on Sonia's machine
+---
+ProcessEvents
+| where hostname == "UL0M-MACHINE"
+| where process_commandline has "whoami" or process_commandline has "ipconfig" or process_commandline has "hostname"
+/* WHY: 5 discovery commands - attacker mapping the environment post-compromise */
+
+---
+# Query 7 - Find second phishing email to Ronnie
+---
+Email
+| where sender == "valdorias_best_recruiter@gmail.com"
+| where recipient == "ronnie_mclovin@valdoriantimes.news"
+/* WHY: Discovered follow-up phish - same pattern, new target - lateral movement preparation */
+
+---
+# Query 8 - Check if Ronnie clicked the link
+---
+OutboundNetworkEvents
+| where src_ip == "10.10.0.19"
+| where url has "Editorial_J0b_Openings"
+/* WHY: Confirmed click at 2024-01-10 08:55:07Z - second machine compromised */
+
+---
+# Query 9 - Identify Ronnie's C2 connection
+---
+ProcessEvents
+| where username == "romclovin"
+| where process_commandline has "plink"
+/* WHY: Different IP (168.57.191.100) but SAME credentials - attacker reusing access */
+
+---
+# Query 10 - Locate the fake story file
+---
+OutboundNetworkEvents
+| where src_ip == "10.10.0.19"
+| where url has "fakestory.docx"
+/* WHY: Found the source document - hosted on hire-recruit.org - attacker's infrastructure */
+
+---
+# Query 11 - Track file rename and placement
+---
+ProcessEvents
+| where hostname == "A37A-DESKTOP"
+| where process_commandline has "fakestory.docx"
+/* WHY: Renamed to OpEdFinal_to_print.docx - social engineering the printer into publishing it */
+
+---
+# Query 12 - Confirm fake article was sent
+---
+Email
+| where sender == "ronnie_mclovin@valdoriantimes.news"
+| where recipient == "clark_kent@valdoriantimes.news"
+| where subject contains "Final OpEd"
+/* WHY: Sent 44 minutes after file was planted - attacker timed the deception perfectly */
+
+---
+# Query 13 - Detect data exfiltration
+---
+ProcessEvents
+| where process_commandline has ".7z" or process_commandline has "curl" or process_commandline has "hirejob.com"
+/* WHY: Three password-protected archives + curl upload to custom portal - confirmed full data theft */
