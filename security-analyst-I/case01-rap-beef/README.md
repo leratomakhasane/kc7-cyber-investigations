@@ -141,14 +141,13 @@ This case was a perfect example of how the simplest thing, something you say in 
 
 | # | File Name | Description |
 |---|---|---|
-| 01 | `evidence/screenshots/01-passive-dns-attacker-domain.png` | Passive DNS lookup showing the attacker's registered domain |
-| 02 | `02-security-question-reset-activity.png` | Logs showing when security questions were answered/changed |
+| 01 | `01-passive-dns-attacker-domain.png` | Passive DNS lookup showing the attacker's registered domain |
+| 02 | `02-security-question-reset-activity.png` | Logs showing when security questions were answered or changed |
 | 03 | `03-phishing-email-to-dwake.png` | Full screenshot of the phishing email received by Dwake |
 | 04 | `04-victim-clicked-phishing-link.png` | Click timestamp confirming the link was accessed |
 | 05 | `05-successful-attacker-login.png` | Login log showing unauthorised access from suspicious IP |
 
-📂 All screenshots stored in: [`evidence/screenshots/`](./evidence/screenshots/)
+- All screenshots stored in: [`evidence/screenshots/`](./evidence/screenshots/)
 
 - **Full KQL queries** : [`evidence/kql-queries.txt`](./evidence/kql-queries.txt)
-- **Screenshots:** [`evidence/screenshots/`](./evidence/screenshots/)
 - **IOCs list:** [`IOCs.md`](./IOCs.md)
