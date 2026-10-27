@@ -1,0 +1,97 @@
+# KC7 - Case 02: JoJo's Hospital - LockByte Ransomware
+# Date: 2025-04-01
+# Purpose: Trace the full attack chain - from initial click to ransomware deployment
+
+---
+# Query 1 - Count total encrypted files (impact scope)
+---
+FileCreationEvents
+| where filename endswith ".encrypted"
+| count
+/* WHY: Measured total impact - 6,420 files encrypted across the organisation */
+
+---
+# Query 2 - Count affected machines
+---
+FileCreationEvents
+| where filename endswith ".encrypted"
+| distinct hostname
+| count
+/* WHY: Showed ransomware spread to 321 hosts - no segmentation allowed it everywhere */
+
+---
+# Query 3 - Locate the ransom note + attacker machine
+---
+FileCreationEvents
+| where filename == "We_Have_Your_Data_Pay_Up.txt"
+| project timestamp, hostname, file_hash
+/* WHY: Found the note on AMFB-MACHINE - Anthony Davis - SHA256 hash for IOC */
+
+---
+# Query 4 - Identify the user/owner of the infected machine
+---
+Employees
+| where hostname == "AMFB-MACHINE"
+| distinct name, email, department
+/* WHY: Confirmed Anthony Davis - his compromised account was the pivot point */
+
+---
+# Query 5 - Find ransomware process execution
+---
+ProcessEvents
+| where process_name has "ransom" or process_name has "lockbyte"
+| project timestamp, process_name, command_line, hostname
+/* WHY: Confirmed lockbyte_ransomer.exe ran - confirmed LockByte variant */
+
+---
+# Query 6 - Trace lateral movement via network share
+---
+FileCreationEvents
+| where filepath contains "jojos-hospital.org"
+| where filename == "spread_ransomware.exe"
+| project timestamp, source_ip, destination_hostname
+/* WHY: Showed how it spread across the network - no segmentation = full infection */
+
+---
+# Query 7 - Identify the original malicious download
+---
+FileCreationEvents
+| where filename contains "Promo" or filename endswith ".docx"
+| where file_hash == "bd886046266b909a8ca5f19f16e5606baf73194a70632c81fdc44ef39ba29712"
+| project timestamp, filename, file_hash
+/* WHY: Found the initial entry point - Raisin_Kane_Promo_Offer.docx — opened May 1 @ 09:56:50Z */
+
+---
+# Query 8 - Find C2 connection (Cobalt Strike)
+---
+OutboundNetworkEvents
+| where ip_address == "93.238.22.122"
+| where port == 50050
+| project timestamp, ip_address, port, process_name
+/* WHY: Confirmed Cobalt Strike beacon - attacker had remote control from Day 1 */
+
+---
+# Query 9 - Detect attacker login using stolen credentials
+---
+AuthenticationEvents
+| where hostname == "AMFB-MACHINE"
+| where ip_address == "203.0.113.1"
+| project timestamp, username, ip_address, user_agent
+/* WHY: Showed attacker logged in May 20 - purchased credentials, no MFA — full access */
+
+---
+# Query 10 - Identify data exfiltration command
+---
+ProcessEvents
+| where command_line contains "curl" and command_line contains "secure-health-access.com"
+| project timestamp, command_line, hostname
+/* WHY: Confirmed files were zipped and sent externally - patient records compromised */
+
+---
+# Query 11 - Check for cleanup/deletion activity
+---
+ProcessEvents
+| where process_name == "cmd.exe"
+| where command_line contains "/c del" or command_line contains "rm "
+| project timestamp, command_line
+/* WHY: Attacker tried to delete local copies - covering tracks, but logs captured it */
