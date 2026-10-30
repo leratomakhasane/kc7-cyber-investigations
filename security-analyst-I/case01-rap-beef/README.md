@@ -20,6 +20,7 @@
 - [Recommendations & Remediations](#recommendations--remediations)
 - [Conclusion & What I Learned](#conclusion--what-i-learned)
 - [Evidence & KQL Findings](#evidence--kql-findings)
+  
 <br><br>
 
 ## Executive Summary
@@ -29,12 +30,29 @@ Dwake, a rapper signed to OWL Records, got into a public feud with another artis
 
 ## Investigation Overview
 
-**Who was affected?** Dwake Audrey - Lead Rapper at OWL Records.
-**What happened?** Personal details revealed publicly in song lyrics were used to answer account security questions. The attacker reset the password, took over the email and social media accounts, then sent phishing messages to contacts. Sensitive information was gathered and archieved as `DwakesDiarySecrets.zip` before exfiltration.
-**When did it happen?** Reconnaissance tracked back to April 10 from IP `18.66.52.227`. The password was reset April 11. The phishing campaign and data theft followed on April 15.
-**Where did it happen?** OWL Records password reset portal - `dwake_audrey@owl-records.com` - linked instagram account - phishing domain - `betterlyrics4u.com`
-**How did they do it?** Lyrics revealed the mother's maiden name `Washington` and the first pet's name `Fluffy`, the exact answers to the account recovery questions. The attacker used these to reset the password and bypass login entirely. Once inside, they sent phishing kinkss to Dwake's contacts and harvested private data.
-**Why was it possible?** Security questions relied on publicly guessable information. No multi-factor authentication was required for password resets. No alerts were triggered for password changes from unknown locations.
+**Who was affected?** <br>
+Dwake Audrey - Lead Rapper at OWL Records.
+
+
+**What happened?** <br>
+Personal details revealed publicly in song lyrics were used to answer account security questions. The attacker reset the password, took over the email and social media accounts, then sent phishing messages to contacts. Sensitive information was gathered and archieved as `DwakesDiarySecrets.zip` before exfiltration.
+
+
+**When did it happen?** <br>
+Reconnaissance tracked back to April 10 from IP `18.66.52.227`. The password was reset April 11. The phishing campaign and data theft followed on April 15.
+
+
+**Where did it happen?** <br>
+OWL Records password reset portal - `dwake_audrey@owl-records.com` - linked Instagram account - phishing domain - `betterlyrics4u.com`
+
+
+**How did they do it?** <br>
+Lyrics revealed the mother's maiden name `Washington` and the first pet's name `Fluffy`, the exact answers to the account recovery questions. The attacker used these to reset the password and bypass login entirely. Once inside, they sent phishing kinkss to Dwake's contacts and harvested private data.
+
+
+**Why was it possible?** <br>
+Security questions relied on publicly guessable information. No multi-factor authentication was required for password resets. No alerts were triggered for password changes from unknown locations.
+
 <br><br>
 
 ## Investigation Timeline & Findings
