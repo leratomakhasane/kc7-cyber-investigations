@@ -1,26 +1,14 @@
-# CASE 04 - CloutHaus: Afomiya Storm Phishing & Business Email Compromise
-**Platform:** KC7 Cyber
+# CASE 04: CloutHaus - Afomiya Storm Phishing & Business Email Compromise
 
 **Date:** 16 March 2026
 
-**Tools:** KQL, Azure Data Explorer, Log Analysis
+**Date Completed:** 2026-03-16
 
-**Difficulty:** Beginner - Intermediate
+**Tools Used:** Kusto Query Language (KQL), Azure Data Explorer, Log Analysis
+
+**Difficulty:** Beginner → Intermediate
 
 ---
-
-## Table of Contents
-- [Executive Summary](#executive-summary)
-- [Investigation Overview](#investigation-overview)
-- [Investigation Timeline & Findings](#investigation-timeline--findings)
-- [Full Attack Chain & MITRE ATT&CK Mapping](#full-attack-chain--mitre-attck-mapping)
-- [Indicators of Compromise](#indicators-of-compromise)
-- [Root Cause Analysis](#root-cause-analysis)
-- [Impact Assessment](#impact-assessment)
-- [Recommendations & Remediations](#recommendations--remediations)
-- [Conclusion & What I Learned](#conclusion--what-i-learned)
-- [Evidence & KQL Findings](#evidence--kql-findings)
-<br><br>
 
 ## Executive Summary
 

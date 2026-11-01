@@ -19,27 +19,36 @@
 - [Impact Assessment](#impact-assessment)
 - [Recommendations & Remediations](#recommendations--remediations)
 - [Conclusion & What I Learned](#conclusion--what-i-learned)
-- [Evidence & KQL Findings](#evidence--kql-findings)
+- [Evidence & Queries](#evidence--queries)
+  
 <br><br>
 
 ## Executive Summary
 
 The Valdorian Times newspaper published a fake, scandalous article accusing candidate Luffy of corruption, and it went out under the Editorial Intern's name. The attackers used a phishing campaign targeting staff, starting with Senior Editor Sonia Gose. When she clicked a malicious link, a PowerShell script ran that established an external tunnel using Plink. They then moved laterally to the Editorial Intern Ronnie McLovin's machine, dropped a fake document, renamed it to look like the real final draft, and emailed it to the printer. The attackers also stole data, compressing Ronnie's files into password-protected archives and exfiltrating them to a custom upload portal. This investigation showed me how phishing → PowerShell → C2 → lateral movement → data theft works in a real-world attack chain.
+
 <br><br>
 
 ## Investigation Overview
 
-**Who was affected?** Sonia Gose, Senior Editor, then Ronnie McLovin, Editorial Intern - both at The Valdorian Times.
+**Who was affected?** <br>
+Sonia Gose, Senior Editor, then Ronnie McLovin, Editorial Intern - both at The Valdorian Times.
 
-**What happened?** Both received "job offer" emails containing malicious Word documents. When opened, macros executed PowerShell backdoors that established remote command-and-control tunnels. The attacker moved between machines, planted a falsified news article, and exfiltrated three password-protected archives of sensitive data.
+**What happened?** <br>
+Both received "job offer" emails containing malicious Word documents. When opened, macros executed PowerShell backdoors that established remote command-and-control tunnels. The attacker moved between machines, planted a falsified news article, and exfiltrated three password-protected archives of sensitive data.
 
-**When did it happen?** Sonia compromised January 5. Ronnie compromised January 10. The fake article was published and data exfiltrated January 31.
+**When did it happen?** <br>
+Sonia compromised January 5. Ronnie compromised January 10. The fake article was published and data exfiltrated January 31.
 
-**Where did it happen?** Sonia's workstation `UL0M-MACHINE` → Ronnie's workstation `A37A-DESKTOP`. C2 servers at `136.130.190.181` and `168.57.191.100`. Exfiltration via `hirejob.com`.
+**Where did it happen?** <br>
+Sonia's workstation `UL0M-MACHINE` → Ronnie's workstation `A37A-DESKTOP`. C2 servers at `136.130.190.181` and `168.57.191.100`. Exfiltration via `hirejob.com`.
 
-**How did they do it?** The malicious documents ran `hacktivist_manifesto.ps1` which established persistence via scheduled tasks and opened reverse SSH tunnels using Plink. The attacker downloaded a fake news story, renamed it to match the expected filename, and emailed it to the newsroom printer. Stolen files were archived and uploaded to an external domain.
+**How did they do it?** <br>
+The malicious documents ran `hacktivist_manifesto.ps1` which established persistence via scheduled tasks and opened reverse SSH tunnels using Plink. The attacker downloaded a fake news story, renamed it to match the expected filename, and emailed it to the newsroom printer. Stolen files were archived and uploaded to an external domain.
 
-**Why was it possible?** Macros were enabled by default. No restrictions blocked outbound SSH connections. PowerShell script execution was not monitored. No data loss prevention rules flagged large file uploads to unknown external domains.
+**Why was it possible?** <br>
+Macros were enabled by default. No restrictions blocked outbound SSH connections. PowerShell script execution was not monitored. No data loss prevention rules flagged large file uploads to unknown external domains.
+
 <br><br>
 
 ## Investigation Timeline & Findings
@@ -61,10 +70,13 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 | 13 | File renamed & planted | `ProcessEvents \| where hostname == "A37A-DESKTOP" \| where process_commandline has "fakestory.docx"` | Renamed to `OpEdFinal_to_print.docx` - moved to Documents folder                                                         | 2024-01-31 10:26:20Z    |
 | 14 | Fake article emailed | `Email \| where sender == "ronnie_mclovin@valdoriantimes.news" \| where recipient == "clark_kent@valdoriantimes.news"` | Subject: `URGENT: Final OpEd Draft Edits` - sent 44 mins after file was planted | 2024-01-31 11:11:12Z |
 | 15 | Data exfiltration - stolen files | `ProcessEvents \| where process_commandline has ".7z" or "curl"` | 3 password-protected archives → uploaded to `hirejob.com/exfil_processor/upload.php` | ~2024-01-31 10:30–11:00 |
+
 <br><br>
 
 
 ## Full Attack Chain & MITRE ATT&CK Mapping
+
+### Full Attack Chain
 
 | Phase | What Happened |
 | --- | --- |
@@ -77,6 +89,7 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 | **Payload Delivery - Fake Article** | Downloaded `fakestory.docx` from `hire-recruit.org` → renamed to `OpEdFinal_to_print.docx` to look legitimate |
 | **Unauthorised Publication** | Emailed the fake file to Clark Kent from Ronnie's account - printer received it as "final draft" → published |
 | **Data Exfiltration** | Zipped Ronnie's Documents, Desktop, and memes into 3 password-protected archives → uploaded all to `hirejob.com` via curl |
+
 <br>
 
 
@@ -95,6 +108,7 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 | **Collection** | T1005 | Data from Local System | Collected files from Documents, Desktop, other folders |
 | **Exfiltration** | T1041 | Exfiltration Over C2 Channel | 7zip archives → curl POST to [hirejob.com](https://hirejob.com "autolink") - encrypted + password protected |
 | **Impact** | T1491.001 | Defacement - Internal Site|Fake article published - reputational + political impact |
+
 <br><br>
 
 
@@ -117,6 +131,7 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 | File | `DankMemes.7z`, `MyStolenDataFromDocuments.7z`, `MyStolenDataFromDesktop.7z` - exfil archives |
 | Credentials (attacker) | Username: `$had0w` - Password: `thruthW!llS3tUfree` |
 | URL | `https://hirejob.com/exfil_processor/upload.php` - exfil endpoint |
+
 <br><br>
 
 
@@ -128,6 +143,7 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 - **Same password for everything.** Attacker used the same credentials across both machines - `$had0w / thruthW!llS3tUfree` - no credential uniqueness.
 - **No file upload restrictions.** Employees can download and run arbitrary .exe/.ps1 files - no endpoint protection blocking Plink or PowerShell.
 - **Insider threat detection missing.** Someone sending an email "from you" that you didn't send - should trigger an alert.
+  
 <br><br>
 
 
@@ -139,6 +155,7 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 - **Persistence established** - scheduled task runs hourly - attacker could come back anytime
 - **Financial + reputational cost** - retractions, loss of trust, potential legal action from the politician
 - **Election influence** - timed right before voting - potentially swayed public opinion
+  
 <br><br>
 
 ## Recommendations & Remediations
@@ -152,18 +169,21 @@ The Valdorian Times newspaper published a fake, scandalous article accusing cand
 | High | Block/alert on .exe/.ps1 downloads from untrusted domains | Stops the tools from being downloaded in the first place |
 | Medium | Verify "urgent" file requests - especially from senior staff | The "URGENT" subject line is a classic attacker tactic |
 | Medium | Data Loss Prevention - alert on .zip/.7z + upload to unknown domains | 3 archives + curl to random site = clear exfil pattern |
+
 <br><br>
 
 
 ## Conclusion & What I Learned
 
 This case showed me how a single phishing email can snowball into a full breach - from one click → PowerShell → reverse tunnel → second victim → fake news → data theft. What really stood out was how the attackers used legitimate tools - PowerShell, Plink, 7zip, curl - nothing "malicious" on its own, but together they were deadly. That's why defense isn't just about blocking "bad files" - it's about spotting **suspicious behaviour**. And the scariest part? They didn't just steal data - they changed reality. They published a lie that people believed. That's the real power of these attacks - and why we defend.
+
 <br><br>
 
 
 ## Evidence & Queries
 
 ### Evidence Screenshots - Complete List 
+
 | # | File Name | What It Shows | 
 | --- | --- | --- |
 | 01 | `01-initial-phishing-email-to-sonia.png` | The original recruitment-themed phishing email sent to Sonia Gose |
