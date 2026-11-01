@@ -1,0 +1,78 @@
+# KC7 — Case 04: CloutHaus — Afomiya Storm Phishing & BEC
+# Date: 2026-03-16
+# Purpose: Identify how the attacker gained access and exfiltrated data
+
+---
+# Query 1 — Find Afomiya's email address
+---
+Employees
+| where name contains "afomiya"
+| distinct email, username
+/* WHY: Needed her exact email to search all logs for activity related to her account */
+
+---
+# Query 2 — Check MFA status on her account
+---
+Employees
+| where name contains "afomiya"
+| distinct mfa_enabled
+/* WHY: Discovered MFA was disabled — biggest gap that allowed the breach */
+
+---
+# Query 3 — Locate the suspicious phishing email
+---
+Email
+| where recipient == "afomiya_storm@clouthaus.com"
+| where subject contains "Partnership"
+| project timestamp, sender, subject, body
+/* WHY: Found the phishing email from collabs@dior-partners.com — starting point of the attack */
+
+---
+# Query 4 — Find when the phishing link was clicked
+---
+OutboundNetworkEvents
+| where url contains "super-brand-offer.com"
+| project timestamp, url, ip_address
+/* WHY: Confirmed the exact time she clicked the malicious link — 2025-04-03T11:20:00Z */
+
+---
+# Query 5 — Identify IP behind the phishing site
+---
+PassiveDns
+| where domain contains "super-brand-offer.com"
+| distinct ip_address
+/* WHY: Found the hosting IP — 198.51.100.12 — confirmed it's an external malicious server */
+
+---
+# Query 6 — Find other domains on the same malicious IP
+---
+PassiveDns
+| where ip == "198.51.100.12"
+| distinct domain
+/* WHY: Discovered 3 related domains — dior-partners.com, influencer-deals.net — confirmed attacker infrastructure */
+
+---
+# Query 7 — Detect the attacker's login from suspicious location
+---
+AuthenticationEvents
+| where username == "afstorm"
+| where ip_address != "KnownOfficeIP"
+| project timestamp, ip_address, city, country, user_agent
+/* WHY: Found login from 182.45.67.89 — Jinan, China — using IE 5.0 — confirmed account takeover */
+
+---
+# Query 8 — Check for email forwarding rules (persistence)
+---
+EmailForwardingRules
+| where recipient == "afomiya_storm@clouthaus.com"
+| project timestamp, forwarding_address, enabled
+/* WHY: Discovered auto-forward to noreply@influencer-deals.net — attacker maintained silent ongoing access */
+
+---
+# Query 9 — Identify what files/emails were sent out
+---
+Email
+| where sender == "afomiya_storm@clouthaus.com"
+| where recipient endswith "influencer-deals.net"
+| project timestamp, subject, attachment_names
+/* WHY: Confirmed payment info, passport, bank statements were exfiltrated — full data breach */
