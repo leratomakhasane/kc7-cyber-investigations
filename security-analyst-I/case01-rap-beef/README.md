@@ -19,13 +19,14 @@
 - [Impact Assessment](#impact-assessment)
 - [Recommendations & Remediations](#recommendations--remediations)
 - [Conclusion & What I Learned](#conclusion--what-i-learned)
-- [Evidence & KQL Findings](#evidence--kql-findings)
+- [Evidence & Queries](#evidence--queries)
   
 <br><br>
 
 ## Executive Summary
 
 Dwake, a rapper signed to OWL Records, got into a public feud with another artist, Present. In his diss track, Dwake accidentally revealed personal information, his mom's maiden name, `Washington` and his childhood pet, `Fluffy`. Present's label, Dollar Currency Records, hired a hacker who used this information to answer Dwake's security questions, reset his password, and take over his account. The attackers then launched a phishing campaign targeting OWL Records staff, tricked Dwake into clicking a link, stole his credentials, and eventually exfiltrated a zip file named `DwakesDirtySecrets.zip`. This case showed me how social engineering and oversharing personal information can lead to a full account compromise.
+
 <br><br>
 
 ## Investigation Overview
@@ -74,6 +75,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 | 13 | Did attackers log in with stolen creds? | `AuthenticationEvents \| where username == "dwaudrey" \| where src_ip == "18.66.52.227"` | Successful Login - 2024-04-15T13:03:12Z | 2024-04-15T13:03:12Z |
 | 14 | What did they do after login? | `InboundNetworkEvents \| where url has "dwaudrey" \| where src_ip has "18.66.52.227"` | 10 requests - searching through his email | Apr 12–May 1 |
 | 15 | What did they steal? | Review file attachments or downloads | `DwakesDirtySecrets.zip` - sensitive data exfiltrated | Post-compromise |
+
 <br><br>
 
 ## Full Attack Chain & MITRE ATT&CK Mapping
@@ -88,6 +90,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 | **Data Collection** | Searched through Dwake's email - 10 requests looking for sensitive info |
 | **Exfiltration** | Zipped up compromising material &#8594; `DwakesDirtySecrets.zip` — stolen and ready for retaliation |
 | **Impact** | Embarrassing post on his Instagram; threat against Present from the dark web - feud escalated beyond music |
+
 <br><br>
 
 ### MITRE ATT&CK Mapping
@@ -103,6 +106,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 | **Collection** | T1005 | Data from Local System | Searched email for sensitive/scandalous info |
 | **Exfiltration** | T1041 | Exfiltration Over C2 Channel | Zipped data &#8594; `DwakesDirtySecrets.zip` - exfiltrated |
 | **Impact** | T1531 | Account Access Removal or Defacement | Unauthorised Instagram post - reputational damage |
+
 <br><br>
 
 ## Indicators Of Compromise
@@ -116,6 +120,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 | URL | `http://betterlyrics4u.com/share/online/published/enter` - Phishing login page |
 | File | `DwakesDirtySecrets.zip` - Exfiltrated data archive |
 | Username | `dwaudrey` - Compromised account |
+
 <br><br>
 
 ## Root Cause Analysis
@@ -125,6 +130,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 - **Oversharing personal information.** Even "harmless" personal details are security questions. Once public, they're useless as secrets.
 - **Phishing email not detected.** The `ghostwriter` email was marked **CLEAN**, no alert, no filter, no warning.
 - **Domain not flagged.** `betterlyrics4u.com` was suspicious but reached the inbox.
+  
 <br><br>
 
 ## Impact Assessment
@@ -134,6 +140,7 @@ Security questions relied on publicly guessable information. No multi-factor aut
 - **Data stolen** - `DwakesDirtySecrets.zip`, material that can be used for blackmail or retaliation
 - **Feud escalated** - physical or digital threat made agaisnt Present which created more problems
 - **Company-wide risk** - 13 staff received the same phishing email, multiple potential entry points
+  
 <br><br>
 
 ## Recommendations & Remediations
@@ -146,11 +153,13 @@ Security questions relied on publicly guessable information. No multi-factor aut
 | High | Train on "context phishing" - emails that fit your role | Ghostwriter offer = convincing to a rapper |
 | Medium | Warn users when links go to external domains | Visual warning when clicking non-company links |
 | Medium | Audit password reset logs - alert on question answers | If someone answers security questions, send an alert immediately |
+
 <br><br>
 
 ## Conclusion & What I Learned
 
 This case was a perfect example of how the simplest thing, something you say in public or post about in public, can become your biggest security weakness. Dwake didn't get hacked with fancy malware or zero-days. He got hacked because he told a story in a song. The attacker didn't need to break any encryption, they just listened. It really drove home that **security isn't just about technology. It's about what we share, what we use as secrets, and how we verify people.** MFA and good security questions would've stopped this whole thing before it even started.
+
 <br><br>
 
 ## Evidence & Queries
