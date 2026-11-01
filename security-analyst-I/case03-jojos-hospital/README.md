@@ -19,29 +19,38 @@
 - [Impact Assessment](#impact-assessment)
 - [Recommendations & Remediations](#recommendations--remediations)
 - [Conclusion & What I Learned](#conclusion--what-i-learned)
-- [Evidence & KQL Findings](#evidence--kql-findings)
+- [Evidence & Queries](#evidence--queries)
+  
 <br><br>
 
 
 ## Executive Summary
 
 JoJo's Hospital in Lexington got hit with a ransomware attack that happened in two stages. First someone clicked a fake ad for a chicken restaurant, downloaded a malicious file, and that gave attackers a way in. They moved around the network, stole patient records and other sensitive data, and eventually the LockByte ransomware group took over - encrypted thousands of files across the hospital and demanded $2 million to unlock them. They even said they backed up the backups so restoring wouldn't work. This was a full investigation tracing it from the very first click all the way through to the ransom note.
+
 <br><br>
 
 
 ## Investigation Overview 
 
-**Who was affected?** JoJo's Hospital - starting with Anthony Davis on `AMFB-MACHINE`, spreading to 321 hosts across the entire network. 
+**Who was affected?** <br>
+JoJo's Hospital - starting with Anthony Davis on `AMFB-MACHINE`, spreading to 321 hosts across the entire network. 
  
-**What happened?** An employee opened a malicious Word document disguised as a promotional offer. The malware executed, established command-and-control, moved laterally across the network, encrypted 6,420 files with the `.encrypted` extension, and deleted backups to prevent recovery.
+**What happened?** <br>
+An employee opened a malicious Word document disguised as a promotional offer. The malware executed, established command-and-control, moved laterally across the network, encrypted 6,420 files with the `.encrypted` extension, and deleted backups to prevent recovery.
  
-**When did it happen?** The phishing email arrived January 15. The infection began at 09:15 on January 16. Full network encryption ran from approximately 10:00 to 14:00 the same day. The ransom demand was posted shortly after. 
+**When did it happen?** <br>
+The phishing email arrived January 15. The infection began at 09:15 on January 16. Full network encryption ran from approximately 10:00 to 14:00 the same day. The ransom demand was posted shortly after. 
   
-**Where did it happen?** Initial compromise on `AMFB-MACHINE` → spread across the hospital network. C2 communication to `93.238.22.122` on port 50050. Data exfiltration to `secure-health-access.com`. All department file shares were encrypted. 
+**Where did it happen?** <br>
+Initial compromise on `AMFB-MACHINE` → spread across the hospital network. C2 communication to `93.238.22.122` on port 50050. Data exfiltration to `secure-health-access.com`. All department file shares were encrypted. 
   
-**How did they do it?** The malicious `.docx` ran macros that executed PowerShell to download LockByte ransomware. A Cobalt Strike beacon established remote control. Shadow copies were deleted to remove restore points. The attacker moved via SMB and admin shares to hit every connected machine. 
+**How did they do it?** <br>
+The malicious `.docx` ran macros that executed PowerShell to download LockByte ransomware. A Cobalt Strike beacon established remote control. Shadow copies were deleted to remove restore points. The attacker moved via SMB and admin shares to hit every connected machine. 
   
-**Why was it possible?** Macros were enabled by default. No network segmentation contained the spread. Endpoint detection did not block known ransomware. Backups were stored on the same network as the data - making them just as vulnerable.
+**Why was it possible?** <br>
+Macros were enabled by default. No network segmentation contained the spread. Endpoint detection did not block known ransomware. Backups were stored on the same network as the data - making them just as vulnerable.
+
 <br><br>
 
 
@@ -66,12 +75,13 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 | 15 | How did they get to Anthony Davis' machine? | `AuthenticationEvents` + `ProcessEvents` | Logged in as Anthony Davis @ `2024-05-20T00:00:00Z` from IP `203.0.113.1` - his credentials were bought off the dark web | May 20 |
 | 16 | Once inside - what did they do? | `ProcessEvents` - discovery commands | `systeminfo` ran 6 times, `advanced-ip-scanner.exe` mapped the whole network, stole `network_diagrams.pdf` and `credentials.txt` - zipped everything and sent it out | May–June |
 | 17 | Cleanup - did they cover tracks? | Command-line logs | `cmd.exe /c del C:\Users\andavis\Documents\patientdata*.zip` - deleted local copies after sending | Post-exfiltration |
+
 <br><br>
 
 
-## Key Findings - Attack Chain & Evidence
+## Full Attack Chain & MITRE ATT&CK Mapping
 
-### Key Findings
+### Full Attack Chain
 
 | Phase | What Happened |
 | --- | --- |
@@ -83,6 +93,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 | **Ransomware Deployment** | Brought in `lockbyte_ransomer.exe`, put it on a shared drive as `spread_ransomware.exe` - encrypted everything across 321 machines. |
 | **Covering Tracks** | Deleted local zip files - but logs still showed what happened. |
 | **Ransom Note** | $2,000,000 in Bitcoin - 72 hours - said backups are compromised too - don't call police or it all gets released. |
+
 <br>
 
 
@@ -100,6 +111,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 | **Exfiltration** | T1048.003 | Exfiltration Over C2 Channel - Curl | Zipped files sent to secure-health-access.com |
 | **Impact** | T1486 | Data Encrypted for Impact - LockByte | 6,420 files encrypted across 321 machines - .encrypted extension |
 | **Impact** | T1490 | Inhibit System Recovery - Backups Deleted | Backups compromised — no easy restore path |
+
 <br><br>
 
 
@@ -123,7 +135,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 
 
 
-## Root Cause & Impact Assessment
+## Root Cause Analysis
 
 - **People clicked a fake ad.** That's the entry point. Social engineering still works way too well.
 - **No MFA on accounts.** They had Anthony's password - done. MFA would've blocked it.
@@ -131,7 +143,9 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 - **Backups weren't separate.** Attackers went after backups too - that's why the ransom was so effective.
 - **Domain filtering missing.** Those obviously fake domains should've been blocked at the firewall.
 
-**Impact:**
+  <br><br>
+
+## Impact Assessment
 
 - 6,420 files encrypted - across 321 computers
 - Patient records, SSNs, health info stolen - HIPAA nightmare
@@ -140,7 +154,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 - Hospital services disrupted - people's lives affected
 - Reputation damage + regulatory trouble
 
-
+<br><br>
 
 ## Recommendations & Remediations
 
@@ -154,6 +168,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 | Medium | Security training - fake ads, phishing, red flags | 24 people clicked - education reduces that number |
 | Medium | Password hygiene + monitor dark web for stolen creds | Anthony's password was for sale - should've been caught |
 | Low | Threat hunt - watch for `.encrypted`, weird outbound curl | Early detection = less damage |
+
 <br><br>
 
 
@@ -162,6 +177,7 @@ JoJo's Hospital in Lexington got hit with a ransomware attack that happened in t
 
 This investigation showed me how layered a real attack can be. It wasn't just one thing - it was a chain: fake ad → click → malware → stolen credentials → spread → encrypt. And what hit me hardest: **the ransomware was actually the final step, not the first.** The attackers were inside for weeks, stealing data and mapping the network before anyone even noticed. Defense-in-depth isn't just a buzzword - it's the only way. If one thing fails - MFA, segmentation, backups - the whole building falls. This case really drove home how important the basics are.
 
+<br><br>
 
 ## Evidence & Queries
 
